@@ -7,12 +7,7 @@ namespace ПР7
         public Form1()
         {
             InitializeComponent();
-            if (!File.Exists(dataFilePath2))
-            {
-                File.CreateText(dataFilePath2);
-            }
         }
-        string dataFilePath2 = "MESSEGES.txt";
 
         private void button1_Click(object sender, EventArgs e)
         {

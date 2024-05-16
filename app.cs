@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -8,59 +9,54 @@ using System.Runtime.InteropServices.Marshalling;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ПР7.DB;
 
 namespace ПР7
 {
     public partial class app : Form
     {
+        Dbase mes;
         public app()
         {
             InitializeComponent();
-            using (StreamReader sr = new StreamReader(dataFilePath2))
+            mes=new Dbase();
+            mes.Database.EnsureCreated();
+            mes.UserMes.Load();
+            foreach (var item in mes.UserMes)
             {
-                foreach (string l in sr.ReadToEnd().Split(";")) { listBox1.Items.Add(l); }
+                string l= item.Name + ":" + item.Message;
+                listBox1.Items.Add(l); 
             }
         }
-        string dataFilePath2 = "MESSEGES.txt";
         private void button1_Click(object sender, EventArgs e)
         {
             if (textBox1.Text != "")
             {
                 string mess = $"{this.Text}:{textBox1.Text}";
-                File.AppendAllText(dataFilePath2, mess + ";");
+                mes.Add(new UserMessage { Name = this.Text,Message=textBox1.Text }) ;
                 listBox1.Items.Add(mess);
                 textBox1.Text = "";
+                mes.SaveChanges();
             }
             else
             {
-                MessageBox.Show("Пусте повідомлення.");
+                MessageBox.Show("Порожнє повідомлення.");
             }
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            List<string> list = new List<string>();
-            list.Clear();
+            listBox2.Items.Clear();
             if (textBox1.Text != "")
             {
-                foreach (string l in listBox1.Items)
+                foreach (var item in mes.UserMes)
                 {
-                    string[] arr = l.Split(":");
-                    for (int i = 0; i < arr.Length; i++) {
-                        if (i != 0)
-                        {
-                            if (arr[i].Contains(textBox1.Text))
-                            {
-                                list.Add(l);
-                            }
-                        }
-                    }
+                    if (item.Message.Contains(textBox1.Text)) { listBox2.Items.Add(item.Message); }
                 }
-                listBox2.Items.AddRange(list.ToArray());
             }
             else
             {
-                MessageBox.Show("Пусте повідомлення.");
+                MessageBox.Show("Введіть текст для пошуку.");
             }
         }
     }
